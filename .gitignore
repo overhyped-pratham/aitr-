@@ -1,0 +1,21 @@
+# Virtual Environment
+libraries/
+Include/
+Lib/
+Scripts/
+pyvenv.cfg
+
+# Temporary/Extracted duplicates
+extracted file/
+
+# Python cache and checkpoints
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+
+# IDE/System files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
