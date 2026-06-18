@@ -17,3 +17,5 @@ services:
         sync: false
       - key: TWILIO_TO_NUMBER
         sync: false
+      - key: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+        sync: false
