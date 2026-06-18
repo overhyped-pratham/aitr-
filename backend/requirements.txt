@@ -1,7 +1,7 @@
 fastapi>=0.110.0
 uvicorn[standard]>=0.28.0
 opencv-python-headless>=4.9.0.80
-mediapipe>=0.10.20
+mediapipe==0.10.14
 numpy>=1.23.5,<2.0.0
 google-genai>=0.1.1
 python-dotenv>=1.0.1
