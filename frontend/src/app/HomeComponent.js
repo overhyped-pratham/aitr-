@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useRef } from "react";
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
 export default function Home() {
   // Navigation View: "landing" | "dashboard" | "emergency" | "settings"
   const [view, setView] = useState("landing");
@@ -298,7 +300,7 @@ export default function Home() {
 
   function connectWebSocket() {
     // Create WebSocket connection to FastAPI
-    const wsUrl = `ws://localhost:8000/ws`;
+    const wsUrl = BACKEND_URL.replace(/^http/, "ws") + "/ws";
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
@@ -430,7 +432,7 @@ export default function Home() {
   const fetchGeminiAnalysis = async () => {
     setAnalysisLoading(true);
     try {
-      const response = await fetch("http://localhost:8000/api/risk-analysis", {
+      const response = await fetch(`${BACKEND_URL}/api/risk-analysis`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -492,7 +494,7 @@ export default function Home() {
   const fetchNearbyPOIs = async (type) => {
     setPoiType(type);
     try {
-      const response = await fetch("http://localhost:8000/api/nearby-assistance", {
+      const response = await fetch(`${BACKEND_URL}/api/nearby-assistance`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -678,7 +680,7 @@ export default function Home() {
     setEmergencySummaryLoading(true);
     
     try {
-      const sosResp = await fetch("http://localhost:8000/api/send-sos", {
+      const sosResp = await fetch(`${BACKEND_URL}/api/send-sos`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
