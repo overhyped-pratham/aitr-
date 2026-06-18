@@ -19,3 +19,15 @@ __pycache__/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Project Dependencies & Local Configs
+node_modules/
+backend/venv/
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.next/
+dist/
+build/
