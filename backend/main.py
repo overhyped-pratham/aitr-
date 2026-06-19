@@ -208,6 +208,30 @@ class EmergencySummaryRequest(BaseModel):
     longitude: float
     customApiKey: Optional[str] = None
 
+def generate_content_with_fallback(client, prompt, model='gemini-2.5-flash', retries=2, delay=1.5):
+    """Call Gemini generate_content with retries and fallback models (2.5 -> 2.0 -> 1.5) for reliability."""
+    last_error = None
+    models_to_try = [model, 'gemini-2.0-flash', 'gemini-1.5-flash']
+    for current_model in models_to_try:
+        for attempt in range(retries + 1):
+            try:
+                response = client.models.generate_content(
+                    model=current_model,
+                    contents=prompt,
+                )
+                return response
+            except Exception as e:
+                last_error = e
+                error_str = str(e).lower()
+                # If it's a transient server error, rate limit, or resource exhaustion, sleep and retry
+                if any(x in error_str for x in ["503", "unavailable", "resource_exhausted", "429", "limit", "rate"]):
+                    if attempt < retries:
+                        time.sleep(delay * (attempt + 1))
+                        continue
+                # If it's an invalid API key (400 or 403) or other non-transient error, don't retry this model
+                break
+    raise last_error
+
 # ─── GEMINI RISK ANALYSIS ───────────────────────────────────
 @app.post("/api/risk-analysis")
 async def analyze_risk(data: RiskRequest):
@@ -287,10 +311,7 @@ async def analyze_risk(data: RiskRequest):
         from google import genai
         # Initialize client with specified API Key
         client = genai.Client(api_key=api_key)
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt,
-        )
+        response = generate_content_with_fallback(client, prompt, model='gemini-2.5-flash')
         
         # Parse the response text
         text = response.text
@@ -433,10 +454,7 @@ async def emergency_summary(data: EmergencySummaryRequest):
     try:
         from google import genai
         client = genai.Client(api_key=api_key)
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt,
-        )
+        response = generate_content_with_fallback(client, prompt, model='gemini-2.5-flash')
         
         text = response.text
         
@@ -576,10 +594,7 @@ async def send_sos(data: EmergencySummaryRequest):
         try:
             from google import genai
             client = genai.Client(api_key=api_key)
-            response = client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=prompt,
-            )
+            response = generate_content_with_fallback(client, prompt, model='gemini-2.5-flash')
             report_summary = response.text.strip()
         except Exception as e:
             print(f"[ERROR] Gemini failed in SOS: {e}")
